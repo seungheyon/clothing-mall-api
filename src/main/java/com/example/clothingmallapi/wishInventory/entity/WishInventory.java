@@ -3,8 +3,7 @@ package com.example.clothingmallapi.wishInventory.entity;
 import com.example.clothingmallapi.item.entity.Item;
 import com.example.clothingmallapi.user.entity.User;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +11,9 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class WishInventory {
 
     @Id
