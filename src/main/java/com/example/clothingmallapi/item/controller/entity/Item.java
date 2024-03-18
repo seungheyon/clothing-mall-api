@@ -1,4 +1,4 @@
-package com.example.clothingmallapi.item.entity;
+package com.example.clothingmallapi.item.controller.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

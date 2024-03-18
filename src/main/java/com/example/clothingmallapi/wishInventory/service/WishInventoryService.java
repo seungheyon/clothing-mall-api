@@ -33,9 +33,10 @@ public class WishInventoryService {
                 .build());
     }
 
-//    public List<WishInventoryResponseDto> getWishInventories(Long userId){
-//        List<WishInventoryResponseDto> wishInventoryResponseDtoList = new ArrayList<>();
-//    }
+    public void getWishInventories(Long userId){
+        List<WishInventoryResponseDto> wishInventoryResponseDtoList = new ArrayList<>();
+        List<WishInventory> wishInventoryList = wishInventoryRepository.findAllByUserId(userId);
+    }
 
     public void deleteWishInventory(Long wishInventoryId){
         wishInventoryRepository.deleteById(wishInventoryId);
