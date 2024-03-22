@@ -6,6 +6,7 @@ import com.example.clothingmallapi.wishInventory.dto.WishInventoryRequestDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryResponseDto;
 import com.example.clothingmallapi.wishInventory.entity.WishInventory;
 import com.example.clothingmallapi.wishInventory.repository.WishInventoryRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,9 +34,9 @@ public class WishInventoryService {
                 .build());
     }
 
-    public List<WishInventoryResponseDto> getWishInventories(Long userId){
+    public List<WishInventoryResponseDto> getWishInventories(Long userId, Pageable pageable){
         List<WishInventoryResponseDto> wishInventoryResponseDtoList = new ArrayList<>();
-        List<WishInventory> wishInventoryList = wishInventoryRepository.findAllByUserId(userId);
+        List<WishInventory> wishInventoryList = wishInventoryRepository.findAllByUserId(userId, pageable);
         for(WishInventory wishInventory : wishInventoryList){
             wishInventoryResponseDtoList.add(new WishInventoryResponseDto(wishInventory.getId(), wishInventory.getName()));
         }

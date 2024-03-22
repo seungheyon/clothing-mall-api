@@ -10,6 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
@@ -77,8 +79,11 @@ public class WishInventoryServiceTest {
         WishInventoryRequestDto pantsWishInventoryRequestDto = new WishInventoryRequestDto(testPantsWishInventoryName);
         var createdPantsWishInventory = sut.createWishInventory(user.getId(),pantsWishInventoryRequestDto);
 
+        int pageSize = 2;
+        PageRequest pageRequest = PageRequest.of(0, pageSize, Sort.by("id"));
+
         // Act
-        List<WishInventoryResponseDto> actual = sut.getWishInventories(user.getId());
+        List<WishInventoryResponseDto> actual = sut.getWishInventories(user.getId(), pageRequest);
 
         // Assert
         assertThat(actual.get(0)).isNotNull();
