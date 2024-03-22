@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -86,6 +87,32 @@ public class WishInventoryServiceTest {
         assertThat(actual.get(1)).isNotNull();
         assertThat(actual.get(1).getId()).isEqualTo(createdPantsWishInventory.getId());
         assertThat(actual.get(1).getName()).isEqualTo(testPantsWishInventoryName);
+
+    }
+
+
+    @DisplayName("sut 는 wishInventoryId 에 해당하는 wishInventory 를 삭제한다.")
+    @Test
+    void deleteWishInventoryTest(){
+
+        // Arrange
+        var sut = new WishInventoryService(wishInventoryRepository, usersRepository);
+        var user = usersRepository.save(Users.builder()
+                .name("testUser")
+                .emailId("testEmailId")
+                .password("testPw")
+                .build());
+
+        WishInventoryRequestDto wishInventoryRequestDto = new WishInventoryRequestDto("testWishInventoryName");
+
+        var createdWishInventory = sut.createWishInventory(user.getId(), wishInventoryRequestDto);
+
+        // Act
+        sut.deleteWishInventory(createdWishInventory.getId());
+        Optional<WishInventory> wishInventoryOptional = wishInventoryRepository.findById(createdWishInventory.getId());
+
+        // Assert
+        assertThat(wishInventoryOptional).isNotPresent();
 
     }
 
