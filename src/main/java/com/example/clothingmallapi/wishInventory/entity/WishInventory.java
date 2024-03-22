@@ -1,7 +1,7 @@
 package com.example.clothingmallapi.wishInventory.entity;
 
 import com.example.clothingmallapi.item.controller.entity.Item;
-import com.example.clothingmallapi.user.entity.User;
+import com.example.clothingmallapi.users.entity.Users;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,7 +20,7 @@ public class WishInventory {
     private Long id;
 
     @ManyToOne
-    private User user;
+    private Users user;
 
     private String name;
 

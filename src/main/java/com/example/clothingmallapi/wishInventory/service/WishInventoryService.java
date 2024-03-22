@@ -1,7 +1,7 @@
 package com.example.clothingmallapi.wishInventory.service;
 
-import com.example.clothingmallapi.user.entity.User;
-import com.example.clothingmallapi.user.repository.UserRepository;
+import com.example.clothingmallapi.users.entity.Users;
+import com.example.clothingmallapi.users.repository.UsersRepository;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryRequestDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryResponseDto;
 import com.example.clothingmallapi.wishInventory.entity.WishInventory;
@@ -15,18 +15,18 @@ import java.util.List;
 public class WishInventoryService {
 
     private final WishInventoryRepository wishInventoryRepository;
-    private final UserRepository userRepository;
+    private final UsersRepository userRepository;
 
 
-    public WishInventoryService(WishInventoryRepository wishInventoryRepository, UserRepository userRepository) {
+    public WishInventoryService(WishInventoryRepository wishInventoryRepository, UsersRepository userRepository) {
         this.wishInventoryRepository = wishInventoryRepository;
         this.userRepository = userRepository;
     }
 
-    public void createWishInventory(Long userId, WishInventoryRequestDto wishInventoryRequestDto){
+    public WishInventory createWishInventory(Long userId, WishInventoryRequestDto wishInventoryRequestDto){
 
-        User user = userRepository.findById(userId).orElseThrow();
-        wishInventoryRepository.save(WishInventory
+        Users user = userRepository.findById(userId).orElseThrow();
+        return wishInventoryRepository.save(WishInventory
                 .builder()
                 .user(user)
                 .name(wishInventoryRequestDto.getName())

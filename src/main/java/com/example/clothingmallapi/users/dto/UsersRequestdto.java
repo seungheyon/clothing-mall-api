@@ -1,11 +1,11 @@
-package com.example.clothingmallapi.user.dto;
+package com.example.clothingmallapi.users.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserRequestdto {
+public class UsersRequestdto {
 
     private String emailId;
 
