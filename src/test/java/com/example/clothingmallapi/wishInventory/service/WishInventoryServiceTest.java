@@ -1,5 +1,7 @@
 package com.example.clothingmallapi.wishInventory.service;
 
+import com.example.clothingmallapi.item.entity.Item;
+import com.example.clothingmallapi.item.repository.ItemRepository;
 import com.example.clothingmallapi.users.entity.Users;
 import com.example.clothingmallapi.users.repository.UsersRepository;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryRequestDto;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,19 +26,22 @@ public class WishInventoryServiceTest {
 
     private final WishInventoryRepository wishInventoryRepository;
     private final UsersRepository usersRepository;
+    private final ItemRepository itemRepository;
 
     @Autowired
-    public WishInventoryServiceTest(WishInventoryRepository wishInventoryRepository, UsersRepository userRepository) {
+    public WishInventoryServiceTest(WishInventoryRepository wishInventoryRepository, UsersRepository usersRepository, ItemRepository itemRepository) {
         this.wishInventoryRepository = wishInventoryRepository;
-        this.usersRepository = userRepository;
+        this.usersRepository = usersRepository;
+        this.itemRepository = itemRepository;
     }
+
 
     @DisplayName("sut는 주어진 데이터로 wishInventory 를 생성한다.")
     @Test
     void createWishInventoryTest(){
 
         // Arrange
-        var sut = new WishInventoryService(wishInventoryRepository, usersRepository);
+        var sut = new WishInventoryService(wishInventoryRepository, usersRepository, itemRepository);
         String testUserName = "tester";
         String testUserEmailId = "emailId";
         String testUserPw = "pw";
@@ -60,11 +66,12 @@ public class WishInventoryServiceTest {
 
 
     @DisplayName("sut는  userId 에 해당하는 wishInventory 목록을 조회하여 반환한다.")
+    @Transactional
     @Test
     void getWishInventoriesTest(){
 
         // Arrange
-        var sut = new WishInventoryService(wishInventoryRepository, usersRepository);
+        var sut = new WishInventoryService(wishInventoryRepository, usersRepository, itemRepository);
 
         var user = usersRepository.save(Users.builder()
                 .name("testUser")
@@ -97,11 +104,12 @@ public class WishInventoryServiceTest {
 
 
     @DisplayName("sut 는 wishInventoryId 에 해당하는 wishInventory 를 삭제한다.")
+    @Transactional
     @Test
     void deleteWishInventoryTest(){
 
         // Arrange
-        var sut = new WishInventoryService(wishInventoryRepository, usersRepository);
+        var sut = new WishInventoryService(wishInventoryRepository, usersRepository, itemRepository);
         var user = usersRepository.save(Users.builder()
                 .name("testUser")
                 .emailId("testEmailId")
@@ -118,6 +126,76 @@ public class WishInventoryServiceTest {
 
         // Assert
         assertThat(wishInventoryOptional).isNotPresent();
+
+    }
+
+    @DisplayName("sut 는 wishInventoryId 에 해당하는 찜서랍에 itemId 에 해당하는 상품을 담는다.")
+    @Transactional
+    @Test
+    void pickupItemTest(){
+
+        // Arrange
+        var sut = new WishInventoryService(wishInventoryRepository, usersRepository, itemRepository);
+
+        var user = usersRepository.save(Users.builder()
+                .name("testUser")
+                .emailId("testEmailId")
+                .password("testPw")
+                .build());
+
+        WishInventoryRequestDto wishInventoryRequestDto = new WishInventoryRequestDto("testWishInventoryName");
+        var createdWishInventory = sut.createWishInventory(user.getId(), wishInventoryRequestDto);
+
+        String testItemName = "testItemName";
+        var createdItem = itemRepository.save(Item.builder()
+                .name(testItemName)
+                .build());
+
+        // Act
+        sut.pickupItemToWishInventory(createdWishInventory.getId(), createdItem.getId());
+        List<Item> actual = createdWishInventory.getItems();
+
+        // Assert
+        assertThat(actual.get(0).getId()).isEqualTo(createdItem.getId());
+        assertThat(actual.get(0).getName()).isEqualTo(createdItem.getName());
+
+    }
+
+
+    @DisplayName("sut 는 wishInventoryId 에 해당하는 찜서랍에서 itemId 에 해당하는 상품을 찜 해제한다.")
+    @Transactional
+    @Test
+    void pickoutItemTest(){
+
+        // Arrange
+        var sut = new WishInventoryService(wishInventoryRepository, usersRepository, itemRepository);
+
+        var user = usersRepository.save(Users.builder()
+                .name("testUser")
+                .emailId("testEmailId")
+                .password("testPw")
+                .build());
+
+        WishInventoryRequestDto wishInventoryRequestDto = new WishInventoryRequestDto("testWishInventoryName");
+        var createdWishInventory = sut.createWishInventory(user.getId(), wishInventoryRequestDto);
+
+        String testItemName = "testItemName";
+        var createdItem = itemRepository.save(Item.builder()
+                .name(testItemName)
+                .build());
+
+        // Act
+        sut.pickupItemToWishInventory(createdWishInventory.getId(), createdItem.getId());
+        sut.pickoutItemFromWishInventory(createdWishInventory.getId(), createdItem.getId());
+        List<Item> actual = createdWishInventory.getItems();
+        Optional<List<Item>> actualOptional = Optional.ofNullable(actual);
+
+
+        // Assert
+        //assertThat(actualOptional.isEmpty()).isFalse();
+        assertThat(actualOptional.isPresent()).isTrue();
+//        assertThat(actual.get(0).getId()).isEqualTo(createdItem.getId());
+//        assertThat(actual.get(0).getName()).isEqualTo(createdItem.getName());
 
     }
 

@@ -1,10 +1,11 @@
 package com.example.clothingmallapi.wishInventory.entity;
 
-import com.example.clothingmallapi.item.controller.entity.Item;
+import com.example.clothingmallapi.item.entity.Item;
 import com.example.clothingmallapi.users.entity.Users;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,6 +26,15 @@ public class WishInventory {
     private String name;
 
     @OneToMany
-    private List<Item> items;
+    @Builder.Default
+    private List<Item> items = new ArrayList<>();
+
+    public void addItemToItemList(Item item){
+        this.items.add(item);
+    }
+
+    public void removeItemFromItemList(Item item){
+        this.items.remove(item);
+    }
 
 }
