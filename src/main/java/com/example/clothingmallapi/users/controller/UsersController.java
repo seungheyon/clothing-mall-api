@@ -14,7 +14,7 @@ public class UsersController {
         this.usersService = usersService;
     }
 
-    @PostMapping("/")
+    @PostMapping("/users")
     public void userCreate(@RequestBody UsersRequestdto usersRequestdto){
         usersService.createUser(usersRequestdto);
     }
