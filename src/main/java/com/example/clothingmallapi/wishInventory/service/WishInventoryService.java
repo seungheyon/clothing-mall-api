@@ -4,8 +4,8 @@ import com.example.clothingmallapi.item.entity.Item;
 import com.example.clothingmallapi.item.repository.ItemRepository;
 import com.example.clothingmallapi.users.entity.Users;
 import com.example.clothingmallapi.users.repository.UsersRepository;
+import com.example.clothingmallapi.wishInventory.dto.WishInventoriesResponseDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryRequestDto;
-import com.example.clothingmallapi.wishInventory.dto.WishInventoryResponseDto;
 import com.example.clothingmallapi.wishInventory.entity.WishInventory;
 import com.example.clothingmallapi.wishInventory.repository.WishInventoryRepository;
 import org.springframework.data.domain.Pageable;
@@ -43,13 +43,10 @@ public class WishInventoryService {
                 .build());
     }
 
-    public List<WishInventoryResponseDto> getWishInventories(Long userId, Pageable pageable){
-        List<WishInventoryResponseDto> wishInventoryResponseDtoList = new ArrayList<>();
-        List<WishInventory> wishInventoryList = wishInventoryRepository.findAllByUserId(userId, pageable);
-        for(WishInventory wishInventory : wishInventoryList){
-            wishInventoryResponseDtoList.add(new WishInventoryResponseDto(wishInventory.getId(), wishInventory.getName()));
-        }
-        return wishInventoryResponseDtoList;
+    public WishInventoriesResponseDto getWishInventories(Long userId, Pageable pageable, Long cursor){
+        return new WishInventoriesResponseDto(
+                wishInventoryRepository.findAllByUserIdAndIdGreaterThanOrderById(userId,cursor, pageable),
+                cursor + pageable.getPageSize());
     }
 
     public void deleteWishInventory(Long wishInventoryId){

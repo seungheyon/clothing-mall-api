@@ -4,6 +4,7 @@ import com.example.clothingmallapi.item.entity.Item;
 import com.example.clothingmallapi.item.repository.ItemRepository;
 import com.example.clothingmallapi.users.entity.Users;
 import com.example.clothingmallapi.users.repository.UsersRepository;
+import com.example.clothingmallapi.wishInventory.dto.WishInventoriesResponseDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryRequestDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryResponseDto;
 import com.example.clothingmallapi.wishInventory.entity.WishInventory;
@@ -88,17 +89,18 @@ public class WishInventoryServiceTest {
 
         int pageSize = 2;
         PageRequest pageRequest = PageRequest.of(0, pageSize, Sort.by("id"));
+        Long cursor = 0L;
 
         // Act
-        List<WishInventoryResponseDto> actual = sut.getWishInventories(user.getId(), pageRequest);
+        WishInventoriesResponseDto actual = sut.getWishInventories(user.getId(), pageRequest, cursor);
 
         // Assert
-        assertThat(actual.get(0)).isNotNull();
-        assertThat(actual.get(0).getId()).isEqualTo(createdCapWishInventory.getId());
-        assertThat(actual.get(0).getName()).isEqualTo(testCapWishInventoryName);
-        assertThat(actual.get(1)).isNotNull();
-        assertThat(actual.get(1).getId()).isEqualTo(createdPantsWishInventory.getId());
-        assertThat(actual.get(1).getName()).isEqualTo(testPantsWishInventoryName);
+        assertThat(actual.getWishInventories().get(0)).isNotNull();
+        assertThat(actual.getWishInventories().get(0).getId()).isEqualTo(createdCapWishInventory.getId());
+        assertThat(actual.getWishInventories().get(0).getName()).isEqualTo(testCapWishInventoryName);
+        assertThat(actual.getWishInventories().get(1)).isNotNull();
+        assertThat(actual.getWishInventories().get(1).getId()).isEqualTo(createdPantsWishInventory.getId());
+        assertThat(actual.getWishInventories().get(1).getName()).isEqualTo(testPantsWishInventoryName);
 
     }
 

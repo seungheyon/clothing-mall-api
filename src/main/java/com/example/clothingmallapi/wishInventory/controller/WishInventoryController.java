@@ -1,5 +1,6 @@
 package com.example.clothingmallapi.wishInventory.controller;
 
+import com.example.clothingmallapi.wishInventory.dto.WishInventoriesResponseDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryRequestDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryResponseDto;
 import com.example.clothingmallapi.wishInventory.service.WishInventoryService;
@@ -24,18 +25,12 @@ public class WishInventoryController {
     }
 
     @GetMapping("/wishInventories")
-    public List<WishInventoryResponseDto> getWishInventories(@RequestParam Long userId,
-                                                             @RequestParam(name = "cursor", required = false) Long cursor,
-                                                             @RequestParam(name = "pageSize", defaultValue = "5") int pageSize,
-                                                             @RequestParam(name = "pageNumber")int pageNumber){
-
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("id"));
-
-//        if(cursor != null){
-//            pageRequest = pageRequest.next();
-//        }
-
-        return wishInventoryService.getWishInventories(userId, pageRequest);
+    public WishInventoriesResponseDto getWishInventories(@RequestParam Long userId,
+                                                         @RequestParam(name = "cursor", required = false) Long cursor,
+                                                         @RequestParam(name = "pageSize", defaultValue = "5") int pageSize
+                                                         ){
+        PageRequest pageRequest = PageRequest.of(0, pageSize);
+        return wishInventoryService.getWishInventories(userId, pageRequest, cursor);
     }
 
     @DeleteMapping("/wishInventories/{wishInventoryId}")
