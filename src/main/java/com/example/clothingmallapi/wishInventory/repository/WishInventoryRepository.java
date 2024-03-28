@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface WishInventoryRepository extends JpaRepository<WishInventory, Long> {
     List<WishInventory> findAllByUserId(Long userId, Pageable pageable);
+    WishInventory findByUserIdAndName(Long userId, String name);
+    boolean existsByUserIdAndName(Long userId, String name);
 }

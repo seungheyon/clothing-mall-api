@@ -29,9 +29,13 @@ public class WishInventoryService {
         this.itemRepository = itemRepository;
     }
 
+    @Transactional
     public WishInventory createWishInventory(Long userId, WishInventoryRequestDto wishInventoryRequestDto){
 
         Users user = userRepository.findById(userId).orElseThrow();
+        if(wishInventoryRepository.existsByUserIdAndName(userId, wishInventoryRequestDto.getName())){
+            throw new IllegalArgumentException("같은 이름의 찜 서랍이 이미 존재합니다.");
+        }
         return wishInventoryRepository.save(WishInventory
                 .builder()
                 .user(user)
