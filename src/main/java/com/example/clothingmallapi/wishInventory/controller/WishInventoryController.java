@@ -42,13 +42,14 @@ public class WishInventoryController {
 
     @PostMapping("/wishInventories/{wishInventoryId}")
     public void pickupItemToWishInventory(@PathVariable Long wishInventoryId,
+                                          @RequestParam Long userId,
                                           @RequestParam Long itemId,
                                           @RequestParam Boolean isItemPickedUp){
         if(isItemPickedUp.equals(true)){
             wishInventoryService.pickoutItemFromWishInventory(wishInventoryId, itemId);
             return;
         }
-        wishInventoryService.pickupItemToWishInventory(wishInventoryId, itemId);
+        wishInventoryService.pickupItemToWishInventory(userId, wishInventoryId, itemId);
     }
 
 //    @GetMapping("/wishInventories/{wishInventoryId}")

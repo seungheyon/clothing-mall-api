@@ -14,8 +14,8 @@ import java.util.List;
 public interface WishInventoryRepository extends JpaRepository<WishInventory, Long> {
     List<WishInventory> findAllByUserId(Long userId, Pageable pageable);
     List<WishInventory> findAllByUserIdAndIdGreaterThanOrderById(Long userId, Long Id, Pageable pageable);
-
-
+    @Query("SELECT COUNT(wi) > 0 FROM WishInventory wi JOIN wi.items item WHERE item.id = :itemId AND wi.user.id = :userId")
+    boolean existsWishInventoryByUserIdAndItemId(Long userId, Long itemId);
     @Query("SELECT DISTINCT i FROM WishInventory wi JOIN wi.items i WHERE wi.id = :wishInventoryId AND i.id > :cursorId")
     List<Item> findItemsByWishInventoryIdAndCursor(
             @Param("wishInventoryId") Long wishInventoryId,

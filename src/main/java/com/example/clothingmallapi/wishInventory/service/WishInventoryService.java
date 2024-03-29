@@ -54,7 +54,10 @@ public class WishInventoryService {
     }
 
     @Transactional
-    public void pickupItemToWishInventory(Long wishInventoryId, Long itemId){
+    public void pickupItemToWishInventory(Long userId, Long wishInventoryId, Long itemId){
+        if(wishInventoryRepository.existsWishInventoryByUserIdAndItemId(userId, itemId)){
+            return;
+        }
         WishInventory wishInventory = wishInventoryRepository.findById(wishInventoryId).orElseThrow();
         Item item = itemRepository.findById(itemId).orElseThrow();
         wishInventory.addItemToItemList(item);

@@ -153,7 +153,7 @@ public class WishInventoryServiceTest {
                 .build());
 
         // Act
-        sut.pickupItemToWishInventory(createdWishInventory.getId(), createdItem.getId());
+        sut.pickupItemToWishInventory(user.getId(), createdWishInventory.getId(), createdItem.getId());
         List<Item> actual = createdWishInventory.getItems();
 
         // Assert
@@ -186,7 +186,7 @@ public class WishInventoryServiceTest {
                 .build());
 
         // Act
-        sut.pickupItemToWishInventory(createdWishInventory.getId(), createdItem.getId());
+        sut.pickupItemToWishInventory(user.getId(), createdWishInventory.getId(), createdItem.getId());
         sut.pickoutItemFromWishInventory(createdWishInventory.getId(), createdItem.getId());
         List<Item> actual = createdWishInventory.getItems();
         Optional<List<Item>> actualOptional = Optional.ofNullable(actual);
@@ -225,8 +225,8 @@ public class WishInventoryServiceTest {
                 .name(testItemName2)
                 .build());
 
-        sut.pickupItemToWishInventory(createdWishInventory.getId(), createdItem1.getId());
-        sut.pickupItemToWishInventory(createdWishInventory.getId(), createdItem2.getId());
+        sut.pickupItemToWishInventory(user.getId(), createdWishInventory.getId(), createdItem1.getId());
+        sut.pickupItemToWishInventory(user.getId(), createdWishInventory.getId(), createdItem2.getId());
 
 
         int pageSize = 2;
