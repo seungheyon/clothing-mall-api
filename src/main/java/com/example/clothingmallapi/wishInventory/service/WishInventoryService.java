@@ -4,6 +4,7 @@ import com.example.clothingmallapi.item.entity.Item;
 import com.example.clothingmallapi.item.repository.ItemRepository;
 import com.example.clothingmallapi.users.entity.Users;
 import com.example.clothingmallapi.users.repository.UsersRepository;
+import com.example.clothingmallapi.wishInventory.dto.WishInventoryDetailDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoriesResponseDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryRequestDto;
 import com.example.clothingmallapi.wishInventory.entity.WishInventory;
@@ -12,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -70,4 +70,13 @@ public class WishInventoryService {
         }
     }
 
+    public WishInventoryDetailDto getItemsInWishInventory(Long wishInventoryId, Pageable pageable, Long cursor){
+        return new WishInventoryDetailDto(
+                wishInventoryRepository.findItemsByWishInventoryIdAndCursor(wishInventoryId, cursor, pageable),
+                cursor + pageable.getPageSize());
+    }
+
+    public WishInventory getWishInventory(Long wishInventoryId){
+        return wishInventoryRepository.findById(wishInventoryId).orElseThrow();
+    }
 }

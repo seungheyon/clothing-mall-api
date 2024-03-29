@@ -4,9 +4,9 @@ import com.example.clothingmallapi.item.entity.Item;
 import com.example.clothingmallapi.item.repository.ItemRepository;
 import com.example.clothingmallapi.users.entity.Users;
 import com.example.clothingmallapi.users.repository.UsersRepository;
+import com.example.clothingmallapi.wishInventory.dto.WishInventoryDetailDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoriesResponseDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryRequestDto;
-import com.example.clothingmallapi.wishInventory.dto.WishInventoryResponseDto;
 import com.example.clothingmallapi.wishInventory.entity.WishInventory;
 import com.example.clothingmallapi.wishInventory.repository.WishInventoryRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -88,7 +87,7 @@ public class WishInventoryServiceTest {
         var createdPantsWishInventory = sut.createWishInventory(user.getId(),pantsWishInventoryRequestDto);
 
         int pageSize = 2;
-        PageRequest pageRequest = PageRequest.of(0, pageSize, Sort.by("id"));
+        PageRequest pageRequest = PageRequest.of(0, pageSize);
         Long cursor = 0L;
 
         // Act
@@ -196,8 +195,54 @@ public class WishInventoryServiceTest {
         // Assert
         //assertThat(actualOptional.isEmpty()).isFalse();
         assertThat(actualOptional.isPresent()).isTrue();
-//        assertThat(actual.get(0).getId()).isEqualTo(createdItem.getId());
-//        assertThat(actual.get(0).getName()).isEqualTo(createdItem.getName());
+    }
+
+    @DisplayName("sut는  wishInventoryId 에 해당하는 wishInventory 에 담긴 item List 를 조회하여 반환한다.")
+    @Transactional
+    @Test
+    void getItemsInWishInventoryTest(){
+        // Arrange
+        var sut = new WishInventoryService(wishInventoryRepository, usersRepository, itemRepository);
+
+        var user = usersRepository.save(Users.builder()
+                .name("testUser")
+                .emailId("testEmailId")
+                .password("testPw")
+                .build());
+
+        String testWishInventoryName = "testWishInventory";
+
+        WishInventoryRequestDto testWishInventoryRequestDto = new WishInventoryRequestDto(testWishInventoryName);
+        var createdWishInventory = sut.createWishInventory(user.getId(),testWishInventoryRequestDto);
+
+        String testItemName1 = "testItemName1";
+        String testItemName2 = "testItemName2";
+        var createdItem1 = itemRepository.save(Item.builder()
+                .name(testItemName1)
+                .build());
+
+        var createdItem2 = itemRepository.save(Item.builder()
+                .name(testItemName2)
+                .build());
+
+        sut.pickupItemToWishInventory(createdWishInventory.getId(), createdItem1.getId());
+        sut.pickupItemToWishInventory(createdWishInventory.getId(), createdItem2.getId());
+
+
+        int pageSize = 2;
+        PageRequest pageRequest = PageRequest.of(0, pageSize);
+        Long cursor = 0L;
+
+        // Act
+        WishInventoryDetailDto actual = sut.getItemsInWishInventory(createdWishInventory.getId(), pageRequest, cursor);
+
+        // Assert
+        assertThat(actual.getItems().get(0)).isNotNull();
+        assertThat(actual.getItems().get(0).getId()).isEqualTo(createdItem1.getId());
+        assertThat(actual.getItems().get(0).getName()).isEqualTo(testItemName1);
+        assertThat(actual.getItems().get(1)).isNotNull();
+        assertThat(actual.getItems().get(1).getId()).isEqualTo(createdItem2.getId());
+        assertThat(actual.getItems().get(1).getName()).isEqualTo(testItemName2);
 
     }
 

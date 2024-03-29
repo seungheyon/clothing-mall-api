@@ -1,8 +1,10 @@
 package com.example.clothingmallapi.wishInventory.controller;
 
 import com.example.clothingmallapi.wishInventory.dto.WishInventoriesResponseDto;
+import com.example.clothingmallapi.wishInventory.dto.WishInventoryDetailDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryRequestDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryResponseDto;
+import com.example.clothingmallapi.wishInventory.entity.WishInventory;
 import com.example.clothingmallapi.wishInventory.service.WishInventoryService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -47,6 +49,20 @@ public class WishInventoryController {
             return;
         }
         wishInventoryService.pickupItemToWishInventory(wishInventoryId, itemId);
+    }
+
+//    @GetMapping("/wishInventories/{wishInventoryId}")
+//    public WishInventory getWishInventory(@PathVariable Long wishInventoryId){
+//        return wishInventoryService.getWishInventory(wishInventoryId);
+//    }
+
+    @GetMapping("/wishInventories/{wishInventoryId}")
+    public WishInventoryDetailDto getItemsInWishInventory(@PathVariable Long wishInventoryId,
+                                                          @RequestParam(name = "cursor", required = false) Long cursor,
+                                                          @RequestParam(name = "pageSize", defaultValue = "5") int pageSize
+                                                 ){
+        PageRequest pageRequest = PageRequest.of(0, pageSize);
+        return wishInventoryService.getItemsInWishInventory(wishInventoryId, pageRequest, cursor);
     }
 
 }
