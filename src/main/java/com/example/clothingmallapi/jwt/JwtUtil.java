@@ -1,6 +1,7 @@
 package com.example.clothingmallapi.jwt;
 
 
+import com.example.clothingmallapi.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -25,12 +27,13 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtUtil {
 
+    private final UserDetailsServiceImpl userDetailsService;
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String AUTHORIZATION_KEY = "auth";
     private static final String BEARER_PREFIX = "Bearer ";
     private static final long TOKEN_TIME = 60 * 60 * 1000L;
 
-    @Value("${jwt.secret.key}")
+    @Value("Zmhqa2FkbHNoZmprYXNoZmxqa2Vod2FqbGZhZGZobGphc25mZXdqbGFuZmxha2puZm5jMzJmbjJramwzZmpxOWJkYg==")
     private String secretKey;
     private Key key;
     private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
@@ -41,7 +44,7 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    // header 토큰을 가져오기
+    // request header에서 bearer 토큰 부분만 추출해서 반환
     public String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
@@ -50,7 +53,7 @@ public class JwtUtil {
         return null;
     }
 
-    // 토큰 생성
+    // 토큰 생성(login 응답 헤더에 추가하여 반환)
     public String createToken(String loginId) {
         Date date = new Date();
 
@@ -87,9 +90,9 @@ public class JwtUtil {
     }
 
     // 인증 객체 생성
-//    public Authentication createAuthentication(String username) {
-//        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-//        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-//    }
+    public Authentication createAuthentication(String usersname) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(usersname);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
 
 }

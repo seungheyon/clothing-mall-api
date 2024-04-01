@@ -1,23 +1,52 @@
 package com.example.clothingmallapi.users.service;
 
-import com.example.clothingmallapi.users.dto.UsersRequestdto;
+import com.example.clothingmallapi.jwt.JwtUtil;
+import com.example.clothingmallapi.users.dto.LoginRequestDto;
+import com.example.clothingmallapi.users.dto.LoginResponseDto;
+import com.example.clothingmallapi.users.dto.SignupRequestDto;
 import com.example.clothingmallapi.users.entity.Users;
 import com.example.clothingmallapi.users.repository.UsersRepository;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UsersService {
     private final UsersRepository usersRepository;
+    private final JwtUtil jwtUtil;
 
-    public UsersService(UsersRepository usersRepository) {
+    public UsersService(UsersRepository usersRepository, JwtUtil jwtUtil) {
         this.usersRepository = usersRepository;
+        this.jwtUtil = jwtUtil;
     }
 
-    public void createUser(UsersRequestdto usersRequestdto){
+    @Transactional
+    public void signup(SignupRequestDto signupRequestDto){
+
+        if(usersRepository.existsByEmailId(signupRequestDto.getEmailId())){
+            throw new IllegalArgumentException("이미 사용중인 Email Id 입니다.");
+        }
+
         usersRepository.save(Users.builder()
-                .emailId(usersRequestdto.getEmailId())
-                .password(usersRequestdto.getPassword())
-                .name(usersRequestdto.getName())
+                .emailId(signupRequestDto.getEmailId())
+                .password(signupRequestDto.getPassword())
+                .name(signupRequestDto.getName())
                 .build());
+    }
+
+    public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletResponse response){
+
+        Users users = usersRepository.findByEmailId(loginRequestDto.getEmailId()).orElseThrow(
+                () -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")
+        );
+
+        if(!users.getPassword().equals(loginRequestDto.getPassword())){
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(users.getName()));
+
+        return new LoginResponseDto(users.getId());
     }
 }
