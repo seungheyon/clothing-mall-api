@@ -31,7 +31,7 @@ public class JwtUtil {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String AUTHORIZATION_KEY = "auth";
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final long TOKEN_TIME = 60 * 60 * 1000L;
+    private static final long TOKEN_TIME = 24 * 60 * 60 * 1000L;
 
     @Value("Zmhqa2FkbHNoZmprYXNoZmxqa2Vod2FqbGZhZGZobGphc25mZXdqbGFuZmxha2puZm5jMzJmbjJramwzZmpxOWJkYg==")
     private String secretKey;

@@ -34,8 +34,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // GET 요청, login, signup 요청에 대해서는 필터를 거치지 않음. ==========================
         String requestURI = request.getRequestURI();
         String requstMethod = request.getMethod();
+        String ignoreHttpMethod = "GET";
 
-        if("GET".equalsIgnoreCase(requstMethod)){
+        if(ignoreHttpMethod.equalsIgnoreCase(requstMethod)){
             filterChain.doFilter(request,response);
             return;
         }
