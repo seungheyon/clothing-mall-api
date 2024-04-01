@@ -2,6 +2,7 @@ package com.example.clothingmallapi.wishInventory.service;
 
 import com.example.clothingmallapi.item.entity.Item;
 import com.example.clothingmallapi.item.repository.ItemRepository;
+import com.example.clothingmallapi.security.UserDetailsImpl;
 import com.example.clothingmallapi.users.entity.Users;
 import com.example.clothingmallapi.users.repository.UsersRepository;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryDetailDto;

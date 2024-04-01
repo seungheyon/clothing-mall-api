@@ -21,13 +21,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Users users = usersRepository.findByName(usersname)
                 .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
 
-        return new UserDetailsImpl(users, usersname, users.getEmailId());
+        return new UserDetailsImpl(users, usersname, users.getEmailId(), users.getId());
     }
 
     public UserDetails loadUserByEmailId(String emailId) throws IllegalArgumentException {
         Users users = usersRepository.findByEmailId(emailId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        return new UserDetailsImpl(users, users.getName(), emailId);
+        return new UserDetailsImpl(users, users.getName(), emailId, users.getId());
     }
 
 }

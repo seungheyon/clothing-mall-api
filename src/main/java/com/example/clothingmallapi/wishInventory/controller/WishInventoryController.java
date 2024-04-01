@@ -1,5 +1,6 @@
 package com.example.clothingmallapi.wishInventory.controller;
 
+import com.example.clothingmallapi.security.UserDetailsImpl;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoriesResponseDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryDetailDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryRequestDto;
@@ -8,6 +9,7 @@ import com.example.clothingmallapi.wishInventory.entity.WishInventory;
 import com.example.clothingmallapi.wishInventory.service.WishInventoryService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,17 +24,17 @@ public class WishInventoryController {
     }
 
     @PostMapping("/wishInventories")
-    public void createWishInventory(@RequestParam Long userId, @RequestBody WishInventoryRequestDto wishInventoryRequestDto){
-        wishInventoryService.createWishInventory(userId, wishInventoryRequestDto);
+    public void createWishInventory(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody WishInventoryRequestDto wishInventoryRequestDto){
+        wishInventoryService.createWishInventory(userDetails.getId(), wishInventoryRequestDto);
     }
 
     @GetMapping("/wishInventories")
-    public WishInventoriesResponseDto getWishInventories(@RequestParam Long userId,
+    public WishInventoriesResponseDto getWishInventories(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                          @RequestParam(name = "cursor", required = false) Long cursor,
                                                          @RequestParam(name = "pageSize", defaultValue = "5") int pageSize
                                                          ){
         PageRequest pageRequest = PageRequest.of(0, pageSize);
-        return wishInventoryService.getWishInventories(userId, pageRequest, cursor);
+        return wishInventoryService.getWishInventories(userDetails.getId(), pageRequest, cursor);
     }
 
     @DeleteMapping("/wishInventories/{wishInventoryId}")
@@ -42,14 +44,14 @@ public class WishInventoryController {
 
     @PostMapping("/wishInventories/{wishInventoryId}")
     public void pickupItemToWishInventory(@PathVariable Long wishInventoryId,
-                                          @RequestParam Long userId,
+                                          @AuthenticationPrincipal UserDetailsImpl userDetails,
                                           @RequestParam Long itemId,
                                           @RequestParam Boolean isItemPickedUp){
         if(isItemPickedUp.equals(true)){
             wishInventoryService.pickoutItemFromWishInventory(wishInventoryId, itemId);
             return;
         }
-        wishInventoryService.pickupItemToWishInventory(userId, wishInventoryId, itemId);
+        wishInventoryService.pickupItemToWishInventory(userDetails.getId(), wishInventoryId, itemId);
     }
 
 //    @GetMapping("/wishInventories/{wishInventoryId}")
