@@ -13,10 +13,12 @@ public class UserDetailsImpl implements UserDetails {
 
     private final Users users;
     private final String usersname;
+    private final String emailId;
 
-    public UserDetailsImpl(Users users, String usersname) {
+    public UserDetailsImpl(Users users, String usersname, String emailId) {
         this.users = users;
         this.usersname = usersname;
+        this.emailId = emailId;
     }
 
     public Users getUsers() {
@@ -63,5 +65,9 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public boolean isEnabled() {
         return false;
+    }
+
+    public String getEmailId(){
+        return this.emailId;
     }
 }
