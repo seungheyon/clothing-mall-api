@@ -35,8 +35,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String requestURI = request.getRequestURI();
         String requstMethod = request.getMethod();
         String ignoreHttpMethod = "GET";
+        String requestPathForFilter = "/wishInventories";
 
-        if(ignoreHttpMethod.equalsIgnoreCase(requstMethod)){
+        if(ignoreHttpMethod.equalsIgnoreCase(requstMethod)&&!requestURI.contains(requestPathForFilter)){
             filterChain.doFilter(request,response);
             return;
         }
