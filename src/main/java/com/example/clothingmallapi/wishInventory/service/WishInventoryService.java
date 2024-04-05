@@ -50,28 +50,41 @@ public class WishInventoryService {
                 cursor + pageable.getPageSize());
     }
 
-    public void deleteWishInventory(Long wishInventoryId){
-        wishInventoryRepository.deleteById(wishInventoryId);
+    public void deleteWishInventory(Long userId, Long wishInventoryId){
+        WishInventory wishInventory = wishInventoryRepository.findById(wishInventoryId).orElseThrow();
+        if(wishInventory.getUser().getId().equals(userId)){
+            wishInventoryRepository.deleteById(wishInventoryId);
+            return;
+        }
+        throw new IllegalArgumentException("내 찜 서랍이 아닙니다.");
     }
 
     @Transactional
     public void pickupItemToWishInventory(Long userId, Long wishInventoryId, Long itemId){
         if(wishInventoryRepository.existsWishInventoryByUserIdAndItemId(userId, itemId)){
-            return;
+            throw new IllegalArgumentException("내 다른 찜 서랍에 있는 상품입니다.");
         }
         WishInventory wishInventory = wishInventoryRepository.findById(wishInventoryId).orElseThrow();
-        Item item = itemRepository.findById(itemId).orElseThrow();
-        wishInventory.addItemToItemList(item);
+        if(wishInventory.getUser().getId().equals(userId)){
+            Item item = itemRepository.findById(itemId).orElseThrow();
+            wishInventory.addItemToItemList(item);
+            return;
+        }
+        throw new IllegalArgumentException("내 찜 서랍이 아닙니다.");
     }
 
     @Transactional
-    public void pickoutItemFromWishInventory(Long wishInventoryId, Long itemId){
+    public void pickoutItemFromWishInventory(Long userId, Long wishInventoryId, Long itemId){
         WishInventory wishInventory = wishInventoryRepository.findById(wishInventoryId).orElseThrow();
-        Item pickeditem = itemRepository.findById(itemId).orElseThrow();
-        List<Item> itemList = wishInventory.getItems();
-        if(itemList.contains(pickeditem)){
-            wishInventory.removeItemFromItemList(pickeditem);
+        if(wishInventory.getUser().getId().equals(userId)){
+            Item pickeditem = itemRepository.findById(itemId).orElseThrow();
+            List<Item> itemList = wishInventory.getItems();
+            if(itemList.contains(pickeditem)){
+                wishInventory.removeItemFromItemList(pickeditem);
+            }
+            return;
         }
+        throw new IllegalArgumentException("내 찜 서랍이 아닙니다.");
     }
 
     public WishInventoryDetailDto getItemsInWishInventory(Long wishInventoryId, Pageable pageable, Long cursor){

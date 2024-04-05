@@ -38,8 +38,9 @@ public class WishInventoryController {
     }
 
     @DeleteMapping("/wishInventories/{wishInventoryId}")
-    public void deleteWishInventory(@PathVariable Long wishInventoryId){
-        wishInventoryService.deleteWishInventory(wishInventoryId);
+    public void deleteWishInventory(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                    @PathVariable Long wishInventoryId){
+        wishInventoryService.deleteWishInventory(userDetails.getId(), wishInventoryId);
     }
 
     @PostMapping("/wishInventories/{wishInventoryId}")
@@ -48,7 +49,7 @@ public class WishInventoryController {
                                           @RequestParam Long itemId,
                                           @RequestParam Boolean isItemPickedUp){
         if(isItemPickedUp.equals(true)){
-            wishInventoryService.pickoutItemFromWishInventory(wishInventoryId, itemId);
+            wishInventoryService.pickoutItemFromWishInventory(userDetails.getId(), wishInventoryId, itemId);
             return;
         }
         wishInventoryService.pickupItemToWishInventory(userDetails.getId(), wishInventoryId, itemId);

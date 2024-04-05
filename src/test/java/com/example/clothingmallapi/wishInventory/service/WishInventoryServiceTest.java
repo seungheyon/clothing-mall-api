@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 public class WishInventoryServiceTest {
@@ -122,11 +123,42 @@ public class WishInventoryServiceTest {
         var createdWishInventory = sut.createWishInventory(user.getId(), wishInventoryRequestDto);
 
         // Act
-        sut.deleteWishInventory(createdWishInventory.getId());
+        sut.deleteWishInventory(user.getId(), createdWishInventory.getId());
         Optional<WishInventory> wishInventoryOptional = wishInventoryRepository.findById(createdWishInventory.getId());
 
         // Assert
         assertThat(wishInventoryOptional).isNotPresent();
+
+    }
+
+    @DisplayName("sut 는 wishInventoryId 에 해당하는 wishInventory 의 userId 가 요청의 userId 와 다를경우 wishInventory 를 삭제할 수 없다.")
+    @Transactional
+    @Test
+    void deleteWishInventoryTestWithIllegalArgumentCase(){
+
+        // Arrange
+        var sut = new WishInventoryService(wishInventoryRepository, usersRepository, itemRepository);
+        String expectedMessage = "내 찜 서랍이 아닙니다.";
+        var user = usersRepository.save(Users.builder()
+                .name("testUser")
+                .emailId("testEmailId")
+                .password("testPw")
+                .build());
+
+        var illegalUser = usersRepository.save(Users.builder()
+                .name("illegalUser")
+                .emailId("illegalUserId")
+                .password("testPw")
+                .build());
+
+        WishInventoryRequestDto wishInventoryRequestDto = new WishInventoryRequestDto("testWishInventoryName");
+
+        var createdWishInventory = sut.createWishInventory(user.getId(), wishInventoryRequestDto);
+
+        // Act & Assert
+        assertThatThrownBy(() -> sut.deleteWishInventory(illegalUser.getId(), createdWishInventory.getId()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(expectedMessage);
 
     }
 
@@ -162,6 +194,76 @@ public class WishInventoryServiceTest {
 
     }
 
+    @DisplayName("sut 는 userId 와 연결된 wishInventory 가 아닌 경우 상품을 찜할 수 없다.")
+    @Transactional
+    @Test
+    void pickupItemTestWithIllegalArgumentCase(){
+
+        // Arrange
+        var sut = new WishInventoryService(wishInventoryRepository, usersRepository, itemRepository);
+        String expectedMessage = "내 찜 서랍이 아닙니다.";
+
+        var user = usersRepository.save(Users.builder()
+                .name("testUser")
+                .emailId("testEmailId")
+                .password("testPw")
+                .build());
+
+        var illegalUser = usersRepository.save(Users.builder()
+                .name("illegalUser")
+                .emailId("illegalUserId")
+                .password("testPw")
+                .build());
+
+        WishInventoryRequestDto wishInventoryRequestDto = new WishInventoryRequestDto("testWishInventoryName");
+        var createdWishInventory = sut.createWishInventory(user.getId(), wishInventoryRequestDto);
+
+        String testItemName = "testItemName";
+        var createdItem = itemRepository.save(Item.builder()
+                .name(testItemName)
+                .build());
+
+        // Act & Assert
+        sut.pickupItemToWishInventory(user.getId(), createdWishInventory.getId(), createdItem.getId());
+        assertThatThrownBy(() -> sut.pickupItemToWishInventory(illegalUser.getId(), createdWishInventory.getId(), createdItem.getId()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(expectedMessage);
+
+    }
+
+    @DisplayName("sut 는 자신의 다른 찜 서랍에 담긴 상품을 찜 할수 없다.")
+    @Transactional
+    @Test
+    void pickupItemTestWithDuplicatedCase(){
+
+        // Arrange
+        var sut = new WishInventoryService(wishInventoryRepository, usersRepository, itemRepository);
+        String expectedMessage = "내 다른 찜 서랍에 있는 상품입니다.";
+
+        var user = usersRepository.save(Users.builder()
+                .name("testUser")
+                .emailId("testEmailId")
+                .password("testPw")
+                .build());
+
+        WishInventoryRequestDto wishInventoryRequestDto = new WishInventoryRequestDto("testWishInventoryName");
+        var createdWishInventory = sut.createWishInventory(user.getId(), wishInventoryRequestDto);
+        WishInventoryRequestDto anotherWishInventoryRequestDto = new WishInventoryRequestDto("anotherWishInventory");
+        var anotherWishInventory = sut.createWishInventory(user.getId(), anotherWishInventoryRequestDto);
+
+        String testItemName = "testItemName";
+        var createdItem = itemRepository.save(Item.builder()
+                .name(testItemName)
+                .build());
+
+        // Act & Assert
+        sut.pickupItemToWishInventory(user.getId(), anotherWishInventory.getId(), createdItem.getId());
+        assertThatThrownBy(() -> sut.pickupItemToWishInventory(user.getId(), createdWishInventory.getId(), createdItem.getId()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(expectedMessage);
+
+    }
+
 
     @DisplayName("sut 는 wishInventoryId 에 해당하는 찜서랍에서 itemId 에 해당하는 상품을 찜 해제한다.")
     @Transactional
@@ -187,7 +289,7 @@ public class WishInventoryServiceTest {
 
         // Act
         sut.pickupItemToWishInventory(user.getId(), createdWishInventory.getId(), createdItem.getId());
-        sut.pickoutItemFromWishInventory(createdWishInventory.getId(), createdItem.getId());
+        sut.pickoutItemFromWishInventory(user.getId(), createdWishInventory.getId(), createdItem.getId());
         List<Item> actual = createdWishInventory.getItems();
         Optional<List<Item>> actualOptional = Optional.ofNullable(actual);
 
@@ -195,6 +297,42 @@ public class WishInventoryServiceTest {
         // Assert
         //assertThat(actualOptional.isEmpty()).isFalse();
         assertThat(actualOptional.isPresent()).isTrue();
+    }
+
+    @DisplayName("sut 는 userId 와 연결된 wishInventory 가 아닌 경우 찜을 해제할 수 없다.")
+    @Transactional
+    @Test
+    void pickoutItemTestWithIllegalArgumentCase(){
+
+        // Arrange
+        var sut = new WishInventoryService(wishInventoryRepository, usersRepository, itemRepository);
+        String expectedMessage = "내 찜 서랍이 아닙니다.";
+
+        var user = usersRepository.save(Users.builder()
+                .name("testUser")
+                .emailId("testEmailId")
+                .password("testPw")
+                .build());
+
+        var illegalUser = usersRepository.save(Users.builder()
+                .name("illegalUser")
+                .emailId("illegalUserId")
+                .password("testPw")
+                .build());
+
+        WishInventoryRequestDto wishInventoryRequestDto = new WishInventoryRequestDto("testWishInventoryName");
+        var createdWishInventory = sut.createWishInventory(user.getId(), wishInventoryRequestDto);
+
+        String testItemName = "testItemName";
+        var createdItem = itemRepository.save(Item.builder()
+                .name(testItemName)
+                .build());
+
+        // Act & Assert
+        sut.pickupItemToWishInventory(user.getId(), createdWishInventory.getId(), createdItem.getId());
+        assertThatThrownBy(() -> sut.pickoutItemFromWishInventory(illegalUser.getId(), createdWishInventory.getId(), createdItem.getId()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(expectedMessage);
     }
 
     @DisplayName("sut는  wishInventoryId 에 해당하는 wishInventory 에 담긴 item List 를 조회하여 반환한다.")
