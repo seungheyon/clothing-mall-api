@@ -1,5 +1,6 @@
 package com.example.clothingmallapi.wishInventory.service;
 
+import com.example.clothingmallapi.common.StatusMessageResponseDto;
 import com.example.clothingmallapi.item.entity.Item;
 import com.example.clothingmallapi.item.repository.ItemRepository;
 import com.example.clothingmallapi.security.UserDetailsImpl;
@@ -33,7 +34,9 @@ public class WishInventoryService {
     @Transactional
     public WishInventory createWishInventory(Long userId, WishInventoryRequestDto wishInventoryRequestDto){
 
-        Users user = userRepository.findById(userId).orElseThrow();
+        Users user = userRepository.findById(userId).orElseThrow(
+                () -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")
+        );
         if(wishInventoryRepository.existsByUserIdAndName(userId, wishInventoryRequestDto.getName())){
             throw new IllegalArgumentException("같은 이름의 찜 서랍이 이미 존재합니다.");
         }
@@ -50,39 +53,45 @@ public class WishInventoryService {
                 cursor + pageable.getPageSize());
     }
 
-    public void deleteWishInventory(Long userId, Long wishInventoryId){
-        WishInventory wishInventory = wishInventoryRepository.findById(wishInventoryId).orElseThrow();
+    public StatusMessageResponseDto deleteWishInventory(Long userId, Long wishInventoryId){
+        WishInventory wishInventory = wishInventoryRepository.findById(wishInventoryId).orElseThrow(
+                () -> new IllegalArgumentException("찜 서랍을 찾을 수 없습니다.")
+        );
         if(wishInventory.getUser().getId().equals(userId)){
             wishInventoryRepository.deleteById(wishInventoryId);
-            return;
+            return new StatusMessageResponseDto("찜 서랍이 삭제되었습니다.");
         }
         throw new IllegalArgumentException("내 찜 서랍이 아닙니다.");
     }
 
     @Transactional
-    public void pickupItemToWishInventory(Long userId, Long wishInventoryId, Long itemId){
+    public StatusMessageResponseDto pickupItemToWishInventory(Long userId, Long wishInventoryId, Long itemId){
         if(wishInventoryRepository.existsWishInventoryByUserIdAndItemId(userId, itemId)){
             throw new IllegalArgumentException("내 다른 찜 서랍에 있는 상품입니다.");
         }
-        WishInventory wishInventory = wishInventoryRepository.findById(wishInventoryId).orElseThrow();
+        WishInventory wishInventory = wishInventoryRepository.findById(wishInventoryId).orElseThrow(
+                () -> new IllegalArgumentException("찜 서랍을 찾을 수 없습니다.")
+        );
         if(wishInventory.getUser().getId().equals(userId)){
             Item item = itemRepository.findById(itemId).orElseThrow();
             wishInventory.addItemToItemList(item);
-            return;
+            return new StatusMessageResponseDto("찜 서랍에 찜이 추가되었습니다.");
         }
         throw new IllegalArgumentException("내 찜 서랍이 아닙니다.");
     }
 
     @Transactional
-    public void pickoutItemFromWishInventory(Long userId, Long wishInventoryId, Long itemId){
-        WishInventory wishInventory = wishInventoryRepository.findById(wishInventoryId).orElseThrow();
+    public StatusMessageResponseDto pickoutItemFromWishInventory(Long userId, Long wishInventoryId, Long itemId){
+        WishInventory wishInventory = wishInventoryRepository.findById(wishInventoryId).orElseThrow(
+                () -> new IllegalArgumentException("찜 서랍을 찾을 수 없습니다.")
+        );
         if(wishInventory.getUser().getId().equals(userId)){
-            Item pickeditem = itemRepository.findById(itemId).orElseThrow();
+            Item pickedItem = itemRepository.findById(itemId).orElseThrow();
             List<Item> itemList = wishInventory.getItems();
-            if(itemList.contains(pickeditem)){
-                wishInventory.removeItemFromItemList(pickeditem);
+            if(itemList.contains(pickedItem)){
+                wishInventory.removeItemFromItemList(pickedItem);
             }
-            return;
+            return new StatusMessageResponseDto("찜 서랍에서 찜이 해제됐습니다.");
         }
         throw new IllegalArgumentException("내 찜 서랍이 아닙니다.");
     }

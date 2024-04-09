@@ -1,5 +1,7 @@
 package com.example.clothingmallapi.wishInventory.controller;
 
+import com.example.clothingmallapi.common.GeneralResponseDto;
+import com.example.clothingmallapi.common.StatusMessageResponseDto;
 import com.example.clothingmallapi.security.UserDetailsImpl;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoriesResponseDto;
 import com.example.clothingmallapi.wishInventory.dto.WishInventoryDetailDto;
@@ -13,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 public class WishInventoryController {
@@ -24,8 +27,14 @@ public class WishInventoryController {
     }
 
     @PostMapping("/wishInventories")
-    public void createWishInventory(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody WishInventoryRequestDto wishInventoryRequestDto){
-        wishInventoryService.createWishInventory(userDetails.getId(), wishInventoryRequestDto);
+    public GeneralResponseDto createWishInventory(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody WishInventoryRequestDto wishInventoryRequestDto){
+        try{
+            wishInventoryService.createWishInventory(userDetails.getId(), wishInventoryRequestDto);
+        }
+        catch (Exception e){
+            return new StatusMessageResponseDto(e.getMessage());
+        }
+        return new StatusMessageResponseDto("찜 서랍이 생성되었습니다.");
     }
 
     @GetMapping("/wishInventories")
@@ -38,21 +47,33 @@ public class WishInventoryController {
     }
 
     @DeleteMapping("/wishInventories/{wishInventoryId}")
-    public void deleteWishInventory(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public GeneralResponseDto deleteWishInventory(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                     @PathVariable Long wishInventoryId){
-        wishInventoryService.deleteWishInventory(userDetails.getId(), wishInventoryId);
+        try{
+            return wishInventoryService.deleteWishInventory(userDetails.getId(), wishInventoryId);
+        }
+        catch (Exception e){
+            return new StatusMessageResponseDto(e.getMessage());
+        }
     }
 
     @PostMapping("/wishInventories/{wishInventoryId}")
-    public void pickupItemToWishInventory(@PathVariable Long wishInventoryId,
+    public GeneralResponseDto pickupItemToWishInventory(@PathVariable Long wishInventoryId,
                                           @AuthenticationPrincipal UserDetailsImpl userDetails,
                                           @RequestParam Long itemId,
                                           @RequestParam Boolean isItemPickedUp){
         if(isItemPickedUp.equals(true)){
-            wishInventoryService.pickoutItemFromWishInventory(userDetails.getId(), wishInventoryId, itemId);
-            return;
+            try{
+                return wishInventoryService.pickoutItemFromWishInventory(userDetails.getId(), wishInventoryId, itemId);
+            } catch (Exception e){
+                return new StatusMessageResponseDto(e.getMessage());
+            }
         }
-        wishInventoryService.pickupItemToWishInventory(userDetails.getId(), wishInventoryId, itemId);
+        try{
+            return wishInventoryService.pickupItemToWishInventory(userDetails.getId(), wishInventoryId, itemId);
+        } catch (Exception e){
+            return new StatusMessageResponseDto(e.getMessage());
+        }
     }
 
 //    @GetMapping("/wishInventories/{wishInventoryId}")
