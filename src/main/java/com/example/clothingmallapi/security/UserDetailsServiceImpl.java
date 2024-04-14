@@ -30,4 +30,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new UserDetailsImpl(users, users.getName(), emailId, users.getId());
     }
 
+    public UserDetails loadUserById(Long Id) throws IllegalArgumentException {
+        Users users = usersRepository.findById(Id)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        return new UserDetailsImpl(users, users.getName(), users.getEmailId(), users.getId());
+    }
+
 }

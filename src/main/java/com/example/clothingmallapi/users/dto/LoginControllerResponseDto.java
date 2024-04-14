@@ -6,6 +6,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class LoginResponseDto implements GeneralResponseDto {
+public class LoginControllerResponseDto implements GeneralResponseDto {
     private Long userId;
 }

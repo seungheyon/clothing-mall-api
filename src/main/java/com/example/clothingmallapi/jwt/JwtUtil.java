@@ -2,6 +2,7 @@ package com.example.clothingmallapi.jwt;
 
 
 import com.example.clothingmallapi.security.UserDetailsServiceImpl;
+import com.example.clothingmallapi.users.service.TokenGenerator;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
@@ -25,7 +26,7 @@ import java.util.Date;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtUtil {
+public class JwtUtil implements TokenGenerator {
 
     private final UserDetailsServiceImpl userDetailsService;
     public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -54,6 +55,7 @@ public class JwtUtil {
     }
 
     // 토큰 생성(login 응답 헤더에 추가하여 반환)
+    @Override
     public String createToken(String loginId) {
         Date date = new Date();
 

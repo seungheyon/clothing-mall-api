@@ -2,7 +2,7 @@ package com.example.clothingmallapi.users.service;
 
 import com.example.clothingmallapi.jwt.JwtUtil;
 import com.example.clothingmallapi.users.dto.LoginRequestDto;
-import com.example.clothingmallapi.users.dto.LoginResponseDto;
+import com.example.clothingmallapi.users.dto.LoginServiceResponseDto;
 import com.example.clothingmallapi.users.dto.SignupRequestDto;
 import com.example.clothingmallapi.common.StatusMessageResponseDto;
 import com.example.clothingmallapi.users.entity.Users;
@@ -14,11 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UsersService {
     private final UsersRepository usersRepository;
-    private final JwtUtil jwtUtil;
 
-    public UsersService(UsersRepository usersRepository, JwtUtil jwtUtil) {
+    public UsersService(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
-        this.jwtUtil = jwtUtil;
     }
 
     @Transactional
@@ -37,7 +35,7 @@ public class UsersService {
         return new StatusMessageResponseDto("회원가입이 정상적으로 완료되었습니다.");
     }
 
-    public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletResponse response){
+    public LoginServiceResponseDto login(LoginRequestDto loginRequestDto, HttpServletResponse response){
 
         Users users = usersRepository.findByEmailId(loginRequestDto.getEmailId()).orElseThrow(
                 () -> new IllegalArgumentException("사용자를 찾을 수 없습니다.")
@@ -47,8 +45,6 @@ public class UsersService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(users.getEmailId()));
-
-        return new LoginResponseDto(users.getId());
+        return new LoginServiceResponseDto(users.getId(), users.getEmailId());
     }
 }
